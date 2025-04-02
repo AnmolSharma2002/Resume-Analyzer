@@ -10,12 +10,10 @@ app.use(express.json());
 app.use(cors());
 
 mongoose
-  .connect(process.env.MONOGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(process.env.MONGO_URI) // ✅ Fixed typo and removed deprecated options
   .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.log(err));
+  .catch((err) => console.log("MongoDB connection error:", err));
+
 app.use("/api", require("./routes/index"));
 
 const PORT = process.env.PORT || 5000;
