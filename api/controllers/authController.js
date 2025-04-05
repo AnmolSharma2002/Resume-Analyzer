@@ -1,11 +1,10 @@
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-
 const { encrypt, decrypt } = require("../utils/crypto");
 require("dotenv").config();
 
-//Signup controller
+// Signup controller
 const signup = async (req, res) => {
   try {
     const { username } = req.body;
@@ -27,17 +26,14 @@ const signup = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // ✅ Encrypt username and email properly
     const encryptedName = encrypt(rawUsername);
     const encryptedEmail = encrypt(email);
-
-    console.log("Encrypted Email:", encryptedEmail); // Debugging
 
     const newUser = new User({
       username: encryptedName.content,
       email: encryptedEmail.content,
-      iv_name: encryptedName.iv, // ✅ Save IV for username
-      iv_email: encryptedEmail.iv, // ✅ Save IV for email
+      iv_name: encryptedName.iv,
+      iv_email: encryptedEmail.iv,
       password: hashedPassword,
     });
 
@@ -49,7 +45,7 @@ const signup = async (req, res) => {
   }
 };
 
-//Login controller
+// Login controller
 const login = async (req, res) => {
   try {
     const { email } = req.body;
@@ -58,37 +54,18 @@ const login = async (req, res) => {
     }
 
     const { email: userEmail, password } = email;
-
-    // Fetch all users from the database
     const users = await User.find({});
     let matchedUser = null;
 
     for (let user of users) {
-      console.log("User Record:", user); // Log entire user object
+      if (!user.iv_email || !user.email) continue;
 
-      // Check if encrypted email exists
-      if (!user.iv_email || !user.email) {
-        console.error("Missing encrypted email or IV in database:", user);
-        continue;
-      }
-
-      console.log(
-        "Decrypting Email - IV:",
-        user.iv_email,
-        "Content:",
-        user.email
-      );
-
-      // Decrypt the stored email
       let decryptedEmail;
       try {
         decryptedEmail = decrypt({ iv: user.iv_email, content: user.email });
       } catch (err) {
-        console.error("Decryption failed:", err.message);
         continue;
       }
-
-      console.log("Decrypted Email:", decryptedEmail);
 
       if (decryptedEmail === userEmail) {
         matchedUser = user;
@@ -100,18 +77,15 @@ const login = async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    // Compare password
     const isMatch = await bcrypt.compare(password, matchedUser.password);
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    // Generate JWT
-    const token = jwt.sign({ id: matchedUser._id }, process.env.JWT, {
+    const token = jwt.sign({ _id: matchedUser._id }, process.env.JWT, {
       expiresIn: "1h",
     });
 
-    // Decrypt username before sending response
     const decryptedName = decrypt({
       iv: matchedUser.iv_name,
       content: matchedUser.username,
@@ -131,4 +105,9 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { signup, login };
+// Logout controller
+const logout = (req, res) => {
+  res.status(200).json({ message: "Logged out successfully" });
+};
+
+module.exports = { signup, login, logout };
