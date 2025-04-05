@@ -4,11 +4,12 @@ const UserSchema = new mongoose.Schema(
   {
     username: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    iv_name: { type: String, required: true }, // ✅ Ensure IV is saved
-    iv_email: { type: String, required: true }, // ✅ Ensure IV is saved
+    iv_name: { type: String, required: true },
+    iv_email: { type: String, required: true },
     password: { type: String, required: true },
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model("User", UserSchema);
+// ✅ Prevent OverwriteModelError
+module.exports = mongoose.models.User || mongoose.model("User", UserSchema);
