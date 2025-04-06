@@ -1,115 +1,163 @@
-const resume = require("../models/resume");
-
+const Resume = require("../models/resume");
 const cloudinary = require("../utils/cloudinary");
+const streamifier = require("streamifier");
 
-//Upload resume controller
-export const uploadResume = async (req, res) => {
+module.exports.createResume = async (req, res) => {
   try {
     const file = req.file;
 
-    const uploadResult = await cloudinary.uploader.upload(file.path, {
-      folder: "resumes",
-    });
+    if (!file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+    // To stream the buffer file because Cloudinary does not accept buffer files directly
+    //Streamifer is a library that allows you to create a readable stream from a buffer
+    const streamUpload = () => {
+      return new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          {
+            resource_type: "raw", // for PDFs, DOCs etc.
+            folder: "resumes",
+          },
+          (error, result) => {
+            if (result) resolve(result);
+            else reject(error);
+          }
+        );
+        streamifier.createReadStream(file.buffer).pipe(stream);
+      });
+    };
 
-    const newResume = new resume({
+    const result = await streamUpload();
+
+    const newResume = new Resume({
       userId: req.user._id,
       fileInfo: {
-        cloudinaryUrl: uploadResult.secure_url,
-        publicId: uploadResult.public_id,
+        cloudinaryUrl: result.secure_url,
+        publicId: result.public_id,
         fileName: file.originalname,
         fileType: file.mimetype,
       },
     });
 
     await newResume.save();
+    res.status(201).json(newResume);
+  } catch (error) {
+    console.error("Upload error:", error);
     res
-      .status(201)
-      .json({ message: "Resume uploaded successfully", resume: newResume });
-  } catch (error) {
-    res.status(500).json({ message: "Server error", error });
-    console.log(error);
+      .status(500)
+      .json({ error: "Failed to upload resume", details: error.message });
   }
 };
 
-//Get all resumes controller
-export const getAllResumes = async (req, res) => {
+//Get All Resumes
+module.exports.getAllResumes = async (req, res) => {
   try {
-    const resumes = await resume.find({ userId: req.user._id });
-    if (!resumes || resumes.length === 0) {
-      return res.status(404).json({ message: "No resumes found" });
-    }
-    res.status(200).json({ resumes });
+    const resumes = await Resume.find({ userId: req.user._id }).sort({
+      createdAt: -1,
+    });
+    res.status(200).json(resumes);
   } catch (error) {
-    res.status(500).json({ message: "Internal server error", error });
+    res.status(500).json({ error: "Failed to fetch resumes" });
   }
 };
 
-//Get resume by Id controller
-export const getResumeById = async (req, res) => {
+//Get Resume by ID
+module.exports.getResume = async (req, res) => {
   try {
-    const resumeId = req.params.resumeId;
-
-    const resumeData = await resume.findById({
-      _id: resumeId,
+    const resume = await Resume.findOne({
+      _id: req.params.id,
       userId: req.user._id,
     });
 
-    if (!resumeData) {
-      return res.status(404).json({ message: "Resume not found" });
-    }
+    if (!resume) return res.status(404).json({ error: "Resume not found" });
 
-    res.status(200).json({ resumeData });
+    res.status(200).json(resume);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Internal server error", error });
+    res.status(500).json({ error: "Error fetching resume" });
   }
 };
 
-//Delete resume controller
-export const deleteResume = async (req, res) => {
-  const resumeId = req.params.resumeId;
+//Delete Resume
+module.exports.deleteResume = async (req, res) => {
   try {
-    const resumeData = await resume.findByIdAndDelete({
-      _id: resumeId,
+    const resume = await Resume.findOne({
+      _id: req.params.id,
       userId: req.user._id,
     });
 
-    if (!resumeData) {
-      return res.status(404).json({ message: "Resume not found" });
-    }
+    if (!resume) return res.status(404).json({ error: "Resume not found" });
 
-    return res.status(200).json({ message: "Resume deleted successfully" });
+    await cloudinary.uploader.destroy(resume.fileInfo.publicId, {
+      resource_type: "raw",
+    });
+
+    await Resume.deleteOne({ _id: resume._id });
+    res.status(200).json({ message: "Resume deleted successfully" });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Internal server error", error });
+    res.status(500).json({ error: "Failed to delete resume" });
   }
 };
 
-//Update resume controller
-export const updateResume = async (req, res) => {
+//Update Resume
+module.exports.updateResume = async (req, res) => {
   try {
-    const resumeId = req.params.resumeId;
-    const file = req.file;
-
-    //Update the existing resume in the database
-    const existingResume = await resume.findOne({
-      _id: resumeId,
+    const existing = await Resume.findOne({
+      _id: req.params.id,
       userId: req.user._id,
     });
-    if (!existingResume) {
-      return res
-        .status(404)
-        .json({ message: "Resume not found or unauthorized attempt" });
+    if (!existing) {
+      return res.status(404).json({ error: "Resume not found" });
     }
 
-    // Delete the old file from Cloudinary
-    if (existingResume.fileInfo && existingResume.fileInfo.publicId) {
-      await cloudinary.uploader.destroy(existingResume.fileInfo.publicId);
+    let updatedFileInfo = existing.fileInfo;
+
+    // If a new file is uploaded
+    if (req.file) {
+      // Delete old resume from Cloudinary
+      await cloudinary.uploader.destroy(existing.fileInfo.publicId, {
+        resource_type: "raw",
+      });
+
+      // Upload new file to Cloudinary
+      const result = await new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          {
+            resource_type: "raw",
+            folder: "resumes",
+          },
+          (error, result) => {
+            if (result) resolve(result);
+            else reject(error);
+          }
+        );
+        streamifier.createReadStream(req.file.buffer).pipe(stream);
+      });
+
+      updatedFileInfo = {
+        cloudinaryUrl: result.secure_url,
+        publicId: result.public_id,
+        fileName: req.file.originalname,
+        fileType: req.file.mimetype,
+      };
     }
 
-    // Upload the new file to Cloudinary
-    const uploadResult = await cloudinary.uploader.upload(file.path, {
-      folder: "resumes",
-    });
-  } catch (error) {}
+    // Update the document
+    const updated = await Resume.findOneAndUpdate(
+      { _id: req.params.id, userId: req.user._id },
+      {
+        $set: {
+          ...req.body,
+          fileInfo: updatedFileInfo,
+        },
+      },
+      { new: true }
+    );
+
+    res.status(200).json(updated);
+  } catch (error) {
+    console.error("Update error:", error);
+    res
+      .status(500)
+      .json({ error: "Failed to update resume", details: error.message });
+  }
 };

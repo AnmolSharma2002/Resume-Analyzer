@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 
+// Subschema for file details (stored in Cloudinary)
 const FileInfoSchema = new mongoose.Schema(
   {
     cloudinaryUrl: { type: String, required: true },
@@ -10,17 +11,25 @@ const FileInfoSchema = new mongoose.Schema(
   { _id: false }
 );
 
+// Subschema for analysis details
 const AnalysisSchema = new mongoose.Schema(
   {
     score: { type: Number },
     keywords: [{ type: String }],
     summary: { type: String },
     isBest: { type: Boolean, default: false },
-    jobCategory: { type: String },
+    targetProfile: { type: String, required: true }, // e.g., 'Data Analyst'
+    jobCategory: { type: String }, // Optional: e.g., 'Analytics'
+    experienceLevel: {
+      type: String,
+      enum: ["Entry", "Mid", "Senior", "Lead"],
+      default: "Entry",
+    },
   },
   { _id: false }
 );
 
+// Final Resume Schema
 const ResumeSchema = new mongoose.Schema(
   {
     userId: {
