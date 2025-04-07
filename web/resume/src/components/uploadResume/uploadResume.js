@@ -18,21 +18,29 @@ const UploadSection = () => {
 
     // Placeholder for actual upload logic
     console.log("Uploading:", selectedFile.name);
+    alert(`File "${selectedFile.name}" uploaded successfully!`); // Feedback for demo
+    setSelectedFile(null); // Reset after upload
   };
 
   return (
     <section className="upload-section">
-      <h2>Upload Resume</h2>
-      <form onSubmit={handleUpload}>
-        <input
-          type="file"
-          accept=".pdf,.doc,.docx"
-          onChange={handleFileChange}
-        />
-        <button type="submit">Upload</button>
+      <h2 className="upload-title">Upload Resume</h2>
+      <form onSubmit={handleUpload} className="upload-form">
+        <div className="upload-input-container">
+          <input
+            type="file"
+            accept=".pdf,.doc,.docx"
+            onChange={handleFileChange}
+            className="upload-input"
+          />
+        </div>
+        <button type="submit" className="upload-button">
+          Upload
+        </button>
       </form>
     </section>
   );
 };
 
 export default UploadSection;
+// Compare this snippet from src/components/uploadResume/uploadResume.js:
