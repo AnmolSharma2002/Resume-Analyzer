@@ -1,0 +1,19 @@
+.analytics-section {
+    padding: 2rem;
+  }
+  
+  .analytics-graphs {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+  
+  .graph-box {
+    background-color: #f1f3f5;
+    border: 1px solid #ccc;
+    padding: 1.5rem;
+    flex: 1;
+    min-width: 250px;
+    text-align: center;
+  }
+  

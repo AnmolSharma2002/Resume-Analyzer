@@ -1,0 +1,14 @@
+.previous-resumes-section {
+    padding: 2rem;
+  }
+  
+  .previous-resumes-section ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .previous-resumes-section li {
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+  }
+  
