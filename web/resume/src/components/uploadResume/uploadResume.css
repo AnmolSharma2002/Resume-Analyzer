@@ -1,0 +1,26 @@
+.upload-section {
+    padding: 2rem;
+  }
+  
+  .upload-section form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .upload-section input[type="file"] {
+    padding: 0.5rem;
+  }
+  
+  .upload-section button {
+    padding: 0.6rem 1.2rem;
+    background-color: #2e86de;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .upload-section button:hover {
+    background-color: #1e70c1;
+  }
+  
