@@ -22,7 +22,7 @@ body {
   justify-content: center;
   position: relative;
   overflow: hidden;
-  background: linear-gradient(135deg, #a78bfa, #6366f1);
+  background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
   padding: 20px;
 }
 
