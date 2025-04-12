@@ -1,16 +1,12 @@
-from fastapi  import APIRouter, FastAPI, UploadFile, File, HTTPException
-from app.services.isResume import is_resume_file
+from fastapi import APIRouter, UploadFile, File
+from app.services.isResume import is_resume
+from app.utils.file_processing import extract_text_from_file  # You’ll create this if not done yet
 
 router = APIRouter()
 
-@router.post("/is-resume")
-async def is_resume_file(file: UploadFile = File(...)):
-    if not file:
-        raise HTTPException(status_code=400, detail="No File uploaded")
-    
-    try:
-        contents = await file.read()
-        result = is_resume_file(contents, file.filename)
-        return {"is_resume": result}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+@router.post("/predict-resume")
+async def predict_resume(file: UploadFile = File(...)):
+    content = await file.read()
+    text = extract_text_from_file(file.filename, content)
+    result = is_resume(text)
+    return {"is_resume": result}
