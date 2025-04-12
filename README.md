@@ -162,7 +162,7 @@ npm run dev
 
 <div align="center">
 
-### Built with 💙 by [Your Name]
+### Built with 💙 by Anmol Sharma
 
 ![Visitors](https://visitor-badge.glitch.me/badge?page_id=yourusername.resume-analyzer)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
