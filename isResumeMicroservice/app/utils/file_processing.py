@@ -1,6 +1,6 @@
 import io
 import PyPDF2
-import docx
+from docx import Document  # Correct import
 
 def extract_text_from_file(filename: str, file_bytes: bytes) -> str:
     """
@@ -34,7 +34,7 @@ def extract_text_from_docx(file_bytes: bytes) -> str:
     Extracts text from a DOCX file.
     """
     try:
-        doc = docx.Document(io.BytesIO(file_bytes))
+        doc = Document(io.BytesIO(file_bytes))  # <-- Fixed this line
         text = "\n".join([para.text for para in doc.paragraphs])
         return text.strip()
     except Exception as e:

@@ -13,6 +13,29 @@ with open(model_path, "rb") as f:
 with open(vectorizer_path, "rb") as f:
     vectorizer = pickle.load(f)
 
+
+resume_headings = [
+    "work experience",
+    "education",
+    "skills",
+    "projects",
+    "certifications",
+    "languages",
+    "experience",
+    "academic qualifications"
+]
+
+def contains_resume_headings(text : str) -> bool:
+    text = text.lower()
+    count = 0
+    for heading in resume_headings:
+        if heading in text:
+            count+=1
+    if count>=5:
+        return True
+    else:
+        return False 
+
 def is_resume_file(file_bytes: bytes, filename: str) -> bool:
     """
     Determines if the uploaded file is a resume.
