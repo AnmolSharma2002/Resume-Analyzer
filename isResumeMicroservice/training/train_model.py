@@ -6,7 +6,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, accuracy_score
 
 #Paths
-data_path = "training/data/all_resume.csv"
+data_path = "data/cleaned_shuffled_dataset.csv"
 model_path = "training/model/resume_classifier.pkl"
 vectorizer_path = "training/model/tfidf_vectorizer.pkl"
 
