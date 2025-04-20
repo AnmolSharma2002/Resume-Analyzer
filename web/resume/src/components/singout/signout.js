@@ -13,7 +13,7 @@ const SignOutSection = () => {
     console.log("Signing out...");
     setIsConfirmed(true);
     setTimeout(() => {
-      router.push("/login"); // Redirect to login page after a short delay
+      router.push("/"); // Redirect to login page after a short delay
     }, 1000);
   };
 

@@ -140,11 +140,15 @@ const Sidebar = () => {
     { name: "Resume Analytics", path: "/dashboard", icon: IconChartBar },
     { name: "Upload Resume", path: "/dashboard/upload", icon: IconFileArrowUp },
     { name: "Previous Resumes", path: "/dashboard/resumes", icon: IconFiles },
-    { name: "Sign Out", path: "/login", icon: IconLogOut },
+    { name: "Sign Out", path: "/login?refreshed=true", icon: IconLogOut },
   ];
 
   const handleNavigation = (path) => {
-    router.push(path);
+    if (path.startsWith("/login")) {
+      window.location.href = path;
+    } else {
+      router.push(path);
+    }
     if (isMobile) {
       setIsMobileMenuOpen(false);
     }
