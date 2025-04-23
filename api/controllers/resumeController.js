@@ -1,5 +1,5 @@
 const Resume = require("../models/resume");
-const cloudinary = require("../utils/cloudinary");
+const cloudinary = require("../utils/S3");
 const streamifier = require("streamifier");
 
 module.exports.createResume = async (req, res) => {
@@ -9,33 +9,14 @@ module.exports.createResume = async (req, res) => {
     if (!file) {
       return res.status(400).json({ error: "No file uploaded" });
     }
-    // To stream the buffer file because Cloudinary does not accept buffer files directly
-    //Streamifer is a library that allows you to create a readable stream from a buffer
-    const streamUpload = () => {
-      return new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
-          {
-            resource_type: "raw", // for PDFs, DOCs etc.
-            folder: "resumes",
-          },
-          (error, result) => {
-            if (result) resolve(result);
-            else reject(error);
-          }
-        );
-        streamifier.createReadStream(file.buffer).pipe(stream);
-      });
-    };
-
-    const result = await streamUpload();
 
     const newResume = new Resume({
-      userId: req.user._id,
+      userId: req.user._id, // Make sure req.user exists (JWT middleware should be in place)
       fileInfo: {
-        cloudinaryUrl: result.secure_url,
-        publicId: result.public_id,
-        fileName: file.originalname,
-        fileType: file.mimetype,
+        s3Url: file.location, // S3 file URL
+        key: file.key, // S3 object key
+        fileName: file.originalname, // Original file name
+        fileType: file.mimetype, // MIME type
       },
     });
 

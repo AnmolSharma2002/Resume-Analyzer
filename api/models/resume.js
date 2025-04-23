@@ -3,14 +3,13 @@ const mongoose = require("mongoose");
 // Subschema for file details (stored in Cloudinary)
 const FileInfoSchema = new mongoose.Schema(
   {
-    cloudinaryUrl: { type: String, required: true },
-    publicId: { type: String, required: true },
+    s3Url: { type: String, required: true }, // Replaces cloudinaryUrl
+    key: { type: String, required: true }, // Replaces publicId
     fileName: { type: String },
     fileType: { type: String },
   },
   { _id: false }
 );
-
 // Subschema for analysis details
 const AnalysisSchema = new mongoose.Schema(
   {
