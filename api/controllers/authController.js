@@ -4,108 +4,85 @@ const jwt = require("jsonwebtoken");
 const { encrypt, decrypt } = require("../utils/crypto");
 require("dotenv").config();
 
-// Signup controller
+// Signup
 const signup = async (req, res) => {
   try {
-    const { username } = req.body;
-    if (
-      !username ||
-      !username.username ||
-      !username.email ||
-      !username.password
-    ) {
-      return res.status(400).json({ message: "Invalid request format" });
+    const { username, email, password } = req.body;
+
+    if (!username || !email || !password) {
+      return res.status(400).json({ message: "All fields are required" });
     }
 
-    const { username: rawUsername, email, password } = username;
-
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ lookupEmail: email });
     if (existingUser) {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const encryptedName = encrypt(rawUsername);
+    const encryptedName = encrypt(username);
     const encryptedEmail = encrypt(email);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = new User({
       username: encryptedName.content,
-      email: encryptedEmail.content,
       iv_name: encryptedName.iv,
+      email: encryptedEmail.content,
       iv_email: encryptedEmail.iv,
+      lookupEmail: email,
       password: hashedPassword,
     });
 
     await newUser.save();
     res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
+    console.error("Signup Error:", error);
     res.status(500).json({ message: "Server error", error });
-    console.log(error);
   }
 };
 
-// Login controller
+// Login
 const login = async (req, res) => {
   try {
-    const { email } = req.body;
-    if (!email) {
-      return res.status(400).json({ message: "Invalid request format" });
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res
+        .status(400)
+        .json({ message: "Email and password are required" });
     }
 
-    const { email: userEmail, password } = email;
-    const users = await User.find({});
-    let matchedUser = null;
-
-    for (let user of users) {
-      if (!user.iv_email || !user.email) continue;
-
-      let decryptedEmail;
-      try {
-        decryptedEmail = decrypt({ iv: user.iv_email, content: user.email });
-      } catch (err) {
-        continue;
-      }
-
-      if (decryptedEmail === userEmail) {
-        matchedUser = user;
-        break;
-      }
-    }
-
-    if (!matchedUser) {
+    const user = await User.findOne({ lookupEmail: email });
+    if (!user) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    const isMatch = await bcrypt.compare(password, matchedUser.password);
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    const token = jwt.sign({ _id: matchedUser._id }, process.env.JWT, {
+    const token = jwt.sign({ _id: user._id }, process.env.JWT, {
       expiresIn: "1h",
     });
 
     const decryptedName = decrypt({
-      iv: matchedUser.iv_name,
-      content: matchedUser.username,
+      iv: user.iv_name,
+      content: user.username,
     });
 
     res.status(200).json({
       token,
       user: {
-        id: matchedUser._id,
+        id: user._id,
         username: decryptedName,
-        email: userEmail,
+        email: user.lookupEmail,
       },
     });
   } catch (error) {
-    console.error("Server Error:", error);
+    console.error("Login Error:", error);
     res.status(500).json({ message: "Server error", error });
   }
 };
 
-// Logout controller
 const logout = (req, res) => {
   res.status(200).json({ message: "Logged out successfully" });
 };

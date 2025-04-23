@@ -1,37 +1,41 @@
 const crypto = require("crypto");
-
-const ENCRPTIONKEY = process.env.ENCRYPTION_KEY || crypto.randomBytes(32);
-
-const IV_LENGTH = 16; // For AES, this is always 16
+const algorithm = "aes-256-ctr";
+const secretKey = process.env.CRYPTO_SECRET;
+const ivLength = 16;
 
 const encrypt = (text) => {
-  const iv = crypto.randomBytes(IV_LENGTH);
+  if (!text) throw new Error("Text is undefined or empty");
+
+  const iv = crypto.randomBytes(ivLength);
   const cipher = crypto.createCipheriv(
-    "aes-256-cbc",
-    Buffer.from(ENCRPTIONKEY),
+    algorithm,
+    Buffer.from(secretKey, "hex"),
     iv
   );
-  let encrypted = cipher.update(text, "utf8", "hex");
-  encrypted += cipher.final("hex");
+  const encrypted = Buffer.concat([
+    cipher.update(text, "utf8"),
+    cipher.final(),
+  ]);
 
-  return { content: encrypted, iv: iv.toString("hex") }; // ✅ Return as object
+  return {
+    iv: iv.toString("hex"),
+    content: encrypted.toString("hex"),
+  };
 };
 
 const decrypt = ({ iv, content }) => {
-  if (!iv || !content) {
-    throw new Error("Invalid encrypted text provided for decryption");
-  }
-
   const decipher = crypto.createDecipheriv(
-    "aes-256-cbc",
-    Buffer.from(ENCRPTIONKEY),
+    algorithm,
+    Buffer.from(secretKey, "hex"),
     Buffer.from(iv, "hex")
   );
 
-  let decrypted = decipher.update(content, "hex", "utf8");
-  decrypted += decipher.final("utf8");
+  const decrypted = Buffer.concat([
+    decipher.update(Buffer.from(content, "hex")),
+    decipher.final(),
+  ]);
 
-  return decrypted;
+  return decrypted.toString();
 };
 
 module.exports = { encrypt, decrypt };
