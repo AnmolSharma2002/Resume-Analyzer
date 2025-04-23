@@ -1,5 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import styles from "./authForm.module.css";
 
 export default function AuthForm({ onSubmit, isLogin }) {
@@ -24,6 +26,15 @@ export default function AuthForm({ onSubmit, isLogin }) {
       } else {
         await onSubmit({ email, password });
       }
+    } catch (err) {
+      toast.error(err.message || "Invalid email or password", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -31,10 +42,7 @@ export default function AuthForm({ onSubmit, isLogin }) {
 
   return (
     <div className={styles.authContainer}>
-      <div className={styles.authBackground}>
-        <div className={styles.shape}></div>
-        <div className={styles.shape}></div>
-      </div>
+      <div className={styles.authBackground}></div>
       <div
         className={`${styles.authCard} ${animateIn ? styles.animateIn : ""}`}
       >
@@ -124,6 +132,7 @@ export default function AuthForm({ onSubmit, isLogin }) {
           )}
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 }

@@ -1,3 +1,4 @@
+// AnalyticsSection.jsx
 "use client";
 import React from "react";
 import { Bar, Doughnut, Line } from "react-chartjs-2";
@@ -13,7 +14,6 @@ import {
   PointElement,
   LineElement,
 } from "chart.js";
-import "./resumeAnalyatics.css";
 
 // Register Chart.js components
 ChartJS.register(
@@ -36,6 +36,17 @@ const AnalyticsSection = () => {
     uniqueTypes: 3,
   };
 
+  // Professional color palette
+  const colors = {
+    primary: "#2c3e50",
+    secondary: "#34495e",
+    accent: "#3498db",
+    text: "#2c3e50",
+    lightText: "#7f8c8d",
+    background: "#f5f5f5",
+    chartColors: ["#3498db", "#2c3e50", "#7f8c8d"],
+  };
+
   // Bar Chart Data (Resume Count)
   const barData = {
     labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
@@ -43,10 +54,9 @@ const AnalyticsSection = () => {
       {
         label: "Resumes Uploaded",
         data: [12, 19, 3, 5, 2, 15],
-        backgroundColor: "rgba(59, 130, 246, 0.8)",
-        borderColor: "#60a5fa",
+        backgroundColor: colors.accent,
+        borderColor: colors.accent,
         borderWidth: 1,
-        hoverBackgroundColor: "#3b82f6",
       },
     ],
   };
@@ -57,10 +67,9 @@ const AnalyticsSection = () => {
     datasets: [
       {
         data: [65, 25, 10],
-        backgroundColor: ["#60a5fa", "#1e293b", "#94a3b8"],
-        hoverBackgroundColor: ["#3b82f6", "#0f172a", "#64748b"],
-        borderWidth: 2,
-        borderColor: "#1e293b",
+        backgroundColor: colors.chartColors,
+        borderWidth: 1,
+        borderColor: colors.background,
       },
     ],
   };
@@ -72,101 +81,101 @@ const AnalyticsSection = () => {
       {
         label: "Average Score",
         data: [75, 82, 78, 90],
-        fill: true,
-        backgroundColor: "rgba(59, 130, 246, 0.2)",
-        borderColor: "#60a5fa",
-        tension: 0.4,
-        pointBackgroundColor: "#3b82f6",
-        pointBorderColor: "#fff",
-        pointHoverBackgroundColor: "#fff",
-        pointHoverBorderColor: "#3b82f6",
+        fill: false,
+        backgroundColor: colors.accent,
+        borderColor: colors.accent,
+        tension: 0.1,
+        pointBackgroundColor: colors.accent,
+        pointBorderColor: colors.background,
       },
     ],
   };
 
-  // Responsive Chart Options
+  // Professional Chart Options
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
       legend: {
         labels: {
-          color: "#94a3b8",
+          color: colors.text,
           font: {
-            size:
-              window.innerWidth <= 480
-                ? 10
-                : window.innerWidth <= 768
-                ? 12
-                : 14,
+            size: 12,
+            family: "'Inter', 'Helvetica', sans-serif",
           },
         },
         position: "top",
       },
       tooltip: {
-        backgroundColor: "#1e293b",
+        backgroundColor: colors.secondary,
         titleColor: "#fff",
-        bodyColor: "#94a3b8",
-        borderColor: "#60a5fa",
-        borderWidth: 1,
+        bodyColor: "#fff",
+        bodyFont: {
+          family: "'Inter', 'Helvetica', sans-serif",
+        },
+        padding: 10,
+        cornerRadius: 4,
+        displayColors: true,
       },
     },
     scales: {
       x: {
         ticks: {
-          color: "#94a3b8",
-          font: { size: window.innerWidth <= 480 ? 10 : 12 },
+          color: colors.text,
+          font: { size: 12, family: "'Inter', 'Helvetica', sans-serif" },
         },
-        grid: { color: "rgba(255, 255, 255, 0.1)" },
+        grid: { color: "rgba(0, 0, 0, 0.05)" },
       },
       y: {
         ticks: {
-          color: "#94a3b8",
-          font: { size: window.innerWidth <= 480 ? 10 : 12 },
+          color: colors.text,
+          font: { size: 12, family: "'Inter', 'Helvetica', sans-serif" },
         },
-        grid: { color: "rgba(255, 255, 255, 0.1)" },
+        grid: { color: "rgba(0, 0, 0, 0.05)" },
       },
     },
   };
 
   return (
     <section className="analytics-section">
-      <h2 className="analytics-title">Resume Analytics</h2>
+      <div className="analytics-container">
+        <h2 className="analytics-title">Resume Performance Analysis</h2>
 
-      {/* Stats Section */}
-      <div className="analytics-stats">
-        <div className="stat-box">
-          <div className="stat-number">{stats.totalResumes}</div>
-          <div className="stat-label">Total Resumes</div>
-        </div>
-        <div className="stat-box">
-          <div className="stat-number">{stats.avgScore}</div>
-          <div className="stat-label">Avg. Score</div>
-        </div>
-        <div className="stat-box">
-          <div className="stat-number">{stats.uniqueTypes}</div>
-          <div className="stat-label">Unique Types</div>
-        </div>
-      </div>
-
-      {/* Graphs Section */}
-      <div className="analytics-graphs">
-        <div className="graph-box">
-          <h3 className="graph-title">Resume Count</h3>
-          <div className="chart-container">
-            <Bar data={barData} options={chartOptions} />
+        {/* Stats Section */}
+        <div className="analytics-stats">
+          <div className="stat-box">
+            <div className="stat-number">{stats.totalResumes}</div>
+            <div className="stat-label">Total Resumes</div>
+          </div>
+          <div className="stat-box">
+            <div className="stat-number">{stats.avgScore}</div>
+            <div className="stat-label">Average Score</div>
+          </div>
+          <div className="stat-box">
+            <div className="stat-number">{stats.uniqueTypes}</div>
+            <div className="stat-label">Document Formats</div>
           </div>
         </div>
-        <div className="graph-box">
-          <h3 className="graph-title">Resume Types</h3>
-          <div className="chart-container">
-            <Doughnut data={doughnutData} options={chartOptions} />
+
+        {/* Graphs Section */}
+        <div className="analytics-graphs">
+          <div className="graph-box">
+            <h3 className="graph-title">Monthly Resume Submissions</h3>
+            <div className="chart-container">
+              <Bar data={barData} options={chartOptions} />
+            </div>
           </div>
-        </div>
-        <div className="graph-box">
-          <h3 className="graph-title">Scores Overview</h3>
-          <div className="chart-container">
-            <Line data={lineData} options={chartOptions} />
+          <div className="graph-box">
+            <h3 className="graph-title">Document Format Distribution</h3>
+            <div className="chart-container">
+              <Doughnut data={doughnutData} options={chartOptions} />
+            </div>
+          </div>
+          <div className="graph-box">
+            <h3 className="graph-title">Performance Trend</h3>
+            <div className="chart-container">
+              <Line data={lineData} options={chartOptions} />
+            </div>
           </div>
         </div>
       </div>

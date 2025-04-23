@@ -1,6 +1,7 @@
 "use client";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import AuthForm from "@/components/authForm/authForm";
 import { login } from "@/services/authService";
 
@@ -22,12 +23,23 @@ export default function LoginPage() {
     }
   }, [router, searchParams, hasRefreshed]);
 
-  const handleLogin = async (email, password) => {
+  const handleLogin = async ({ email, password }) => {
     try {
-      await login(email, password);
+      const response = await login(email, password);
+      console.log("Login response:", response); // Debug log
+      // Show success toast before redirecting
+      toast.success("Login successful!", {
+        position: "top-right",
+        autoClose: 1000,
+      });
       router.push("/dashboard");
+      return response;
     } catch (error) {
-      console.log(error);
+      // Log error details for debugging
+      // Throw error for AuthForm to display toast
+      throw new Error(
+        error.message || "Failed to login. Please check your credentials."
+      );
     }
   };
 
