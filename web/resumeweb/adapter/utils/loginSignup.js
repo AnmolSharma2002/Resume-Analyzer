@@ -27,7 +27,7 @@ export const useLogin = () => {
 //Signup
 export const useSignup = () => {
   return useMutation({
-    mutationFn: (data) => signupUser(data),
+    mutationFn: (data) => singupUser(data),
     onSuccess: () => {
       publish(events.OPEN_ALERT, "Signup Successful. Please verify OTP.");
     },
@@ -52,6 +52,17 @@ export const useResendOtp = () => {
     mutationFn: (data) => resendOtp(data),
     onSuccess: () => {
       publish(events.OPEN_ALERT, "OTP Resent Successfully");
+    },
+    onError: handleError,
+  });
+};
+
+//logout
+export const useLogout = () => {
+  return useMutation({
+    mutationFn: (data) => logoutUser(data),
+    onSuccess: () => {
+      publish(events.OPEN_ALERT, "Logged out successfully");
     },
     onError: handleError,
   });
