@@ -1,15 +1,7 @@
-import "../styles/globals.css"; // Import global CSS
-import { useEffect } from "react";
+import '../styles/globals.css';
 
 function MyApp({ Component, pageProps }) {
-  useEffect(() => {
-    // Example of running something on initial load
-    console.log("App loaded");
-  }, []);
-
-  return (
-    <Component {...pageProps} /> // This will render the current page component
-  );
+  return <Component {...pageProps} />;
 }
 
 export default MyApp;
