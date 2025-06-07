@@ -1,5 +1,4 @@
-// utils/axiosInstance.ts
-import { Routes } from "@/routes";
+import { Routes } from "@/routes/routes";
 import axios from "axios";
 import Cookies from "js-cookie";
 import Router from "next/router";
