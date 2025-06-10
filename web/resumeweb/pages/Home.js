@@ -2,7 +2,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import styles from "./Home.module.scss";
-import Link from "next/link";
 
 const Home = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
