@@ -1,0 +1,388 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+$primary-color: #3366FF;
+$secondary-color: #5E81F4;
+$text-color: #14142B;
+$text-secondary: #6E7191;
+$bg-color: #FCFCFC;
+$border-color: #D9DBE9;
+$white: #FFFFFF;
+$success: #4CAF50;
+$warning: #FF9800;
+$shadow-light: 0px 8px 24px rgba(149, 157, 165, 0.2);
+$shadow-medium: 0px 12px 32px rgba(13, 39, 80, 0.1);
+$shadow-hover: 0px 16px 40px rgba(112, 144, 176, 0.2);
+
+.signupContainer {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  font-family: 'Inter', sans-serif;
+  background-color: $bg-color;
+  color: $text-color;
+}
+
+.signupContent {
+  display: flex;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.formContainer {
+  flex: 1;
+  max-width: 560px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  
+  @media (min-width: 768px) {
+    padding: 3rem 4rem;
+  }
+}
+
+.logoContainer {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  
+  h1 {
+    margin: 0;
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-left: 1rem;
+  }
+}
+
+.logo {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba($primary-color, 0.1);
+  border-radius: 12px;
+}
+
+.subtitle {
+  color: $text-secondary;
+  margin-bottom: 2rem;
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+.inputGroup {
+  margin-bottom: 1.5rem;
+  
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: $text-color;
+    font-weight: 500;
+    font-size: 0.875rem;
+  }
+}
+
+.inputWrapper {
+  position: relative;
+  
+  input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    padding-right: 2.5rem;
+    font-size: 0.95rem;
+    border: 1px solid $border-color;
+    border-radius: 0.5rem;
+    background-color: $white;
+    transition: all 0.2s ease;
+    
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+      box-shadow: 0 0 0 3px rgba($primary-color, 0.15);
+    }
+    
+    &::placeholder {
+      color: lighten($text-secondary, 15%);
+    }
+  }
+  
+  .inputIcon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: $text-secondary;
+    cursor: pointer;
+  }
+}
+
+.rememberMe {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  
+  .checkbox {
+    display: flex;
+    align-items: center;
+    position: relative;
+    padding-left: 28px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    user-select: none;
+    color: $text-secondary;
+    
+    input {
+      position: absolute;
+      opacity: 0;
+      cursor: pointer;
+      height: 0;
+      width: 0;
+      
+      &:checked ~ .checkmark {
+        background-color: $primary-color;
+        border-color: $primary-color;
+        
+        &:after {
+          display: block;
+        }
+      }
+    }
+    
+    .checkmark {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 18px;
+      width: 18px;
+      background-color: $white;
+      border: 1px solid $border-color;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+      
+      &:after {
+        content: "";
+        position: absolute;
+        display: none;
+        left: 6px;
+        top: 2px;
+        width: 5px;
+        height: 10px;
+        border: solid white;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+      }
+    }
+  }
+}
+
+.signupButton {
+  width: 100%;
+  padding: 0.875rem;
+  background-color: $primary-color;
+  color: $white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  
+  &:hover {
+    background-color: darken($primary-color, 5%);
+    transform: translateY(-1px);
+    box-shadow: $shadow-light;
+  }
+  
+  &:focus {
+    outline: none;
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+  
+  &.loading {
+    cursor: not-allowed;
+    background-color: lighten($primary-color, 10%);
+  }
+  
+  .spinner {
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba($white, 0.3);
+    border-top-color: $white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 1.5rem 0;
+  
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    border-top: 1px solid $border-color;
+  }
+  
+  span {
+    padding: 0 1rem;
+    font-size: 0.875rem;
+    color: $text-secondary;
+    background-color: $bg-color;
+  }
+}
+
+.socialLogins {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  
+  .socialButton {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    border: 1px solid $border-color;
+    background-color: $white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      box-shadow: $shadow-light;
+      transform: translateY(-2px);
+    }
+    
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}
+
+.loginPrompt {
+  text-align: center;
+  font-size: 0.875rem;
+  color: $text-secondary;
+  margin-top: 1rem;
+  
+  a {
+    color: $primary-color;
+    font-weight: 600;
+    text-decoration: none;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.illustrationContainer {
+  flex: 1;
+  display: none;
+  position: relative;
+  overflow: hidden;
+  
+  @media (min-width: 1024px) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .backgroundShape {
+    position: absolute;
+    width: 120%;
+    height: 120%;
+    background: linear-gradient(140deg, lighten($primary-color, 32%), lighten($primary-color, 25%));
+    border-radius: 50%;
+    top: -10%;
+    left: -20%;
+    z-index: 0;
+  }
+  
+  .patternGrid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: radial-gradient(rgba($white, 0.4) 1px, transparent 1px);
+    background-size: 24px 24px;
+    z-index: 1;
+  }
+  
+  .floatingCard,
+  .floatingCardAlt {
+    position: relative;
+    z-index: 2;
+    background-color: $white;
+    border-radius: 16px;
+    box-shadow: $shadow-medium;
+    width: 280px;
+    padding: 1.5rem;
+    margin: 1rem;
+    
+    .cardContent {
+      h3 {
+        margin: 0.75rem 0 0.5rem;
+        font-size: 1.125rem;
+        font-weight: 600;
+      }
+      
+      p {
+        margin: 0;
+        color: $text-secondary;
+        font-size: 0.875rem;
+        line-height: 1.5;
+      }
+    }
+  }
+  
+  .floatingCard {
+    transform: rotate(-5deg);
+  }
+  
+  .floatingCardAlt {
+    transform: rotate(5deg);
+    margin-top: -100px;
+    margin-left: 100px;
+  }
+}
+
+// Animation keyframes
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(-5deg);
+  }
+  50% {
+    transform: translateY(-15px) rotate(-5deg);
+  }
+}
+
+@keyframes floatAlt {
+  0%, 100% {
+    transform: translateY(0px) rotate(5deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(5deg);
+  }
+}

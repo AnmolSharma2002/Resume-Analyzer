@@ -5,10 +5,12 @@ import {
   resendOtp,
   logoutUser,
 } from "@/adapter/servies/loginSignupServices";
-
+import { toast } from "react-toastify";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { publish } from "@/common/utils/eventBus";
-import events from "@/common/events";
+
+const handleError = (error) => {
+  toast.error(error?.message || "An unexpected error occurred");
+};
 
 //Login
 export const useLogin = () => {
@@ -17,7 +19,7 @@ export const useLogin = () => {
   return useMutation({
     mutationFn: (data) => loginUser(data),
     onSuccess: (res) => {
-      publish(events.OPEN_ALERT, "Login Successful");
+      toast.success("Login Successful");
       queryClient.invalidateQueries({ queryKey: ["profile"] });
     },
     onError: handleError,
@@ -29,7 +31,7 @@ export const useSignup = () => {
   return useMutation({
     mutationFn: (data) => singupUser(data),
     onSuccess: () => {
-      publish(events.OPEN_ALERT, "Signup Successful. Please verify OTP.");
+      toast.success("Signup Successful. Please verify OTP.");
     },
     onError: handleError,
   });
@@ -40,7 +42,7 @@ export const useVerifyOtp = () => {
   return useMutation({
     mutationFn: (data) => verifyEmailOtp(data),
     onSuccess: () => {
-      publish(events.OPEN_ALERT, "Email verified successfully");
+      toast.success("Email verified successfully");
     },
     onError: handleError,
   });
@@ -51,7 +53,7 @@ export const useResendOtp = () => {
   return useMutation({
     mutationFn: (data) => resendOtp(data),
     onSuccess: () => {
-      publish(events.OPEN_ALERT, "OTP Resent Successfully");
+      toast.success("OTP Resent Successfully");
     },
     onError: handleError,
   });
@@ -62,7 +64,7 @@ export const useLogout = () => {
   return useMutation({
     mutationFn: (data) => logoutUser(data),
     onSuccess: () => {
-      publish(events.OPEN_ALERT, "Logged out successfully");
+      toast.success("Logged out successfully");
     },
     onError: handleError,
   });
