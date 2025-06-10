@@ -4,6 +4,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import styles from "@/pages/signup/singup.module.scss";
 import { useSignup } from "@/adapter/utils/index";
+import Link from "next/link";
 
 const SignupPage = () => {
   const [credentials, setCredentials] = useState({
@@ -325,7 +326,7 @@ const SignupPage = () => {
             </motion.div>
 
             <motion.p className={styles.loginPrompt} variants={itemVariants}>
-              Already have an account? <a href="/login">Sign in</a>
+              Already have an account? <Link href="/login">Sign in</Link>
             </motion.p>
           </motion.form>
         </motion.div>
