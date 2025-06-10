@@ -2,6 +2,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import styles from "./Home.module.scss";
+import Link from "next/link";
 
 const Home = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -146,24 +147,24 @@ const Home = () => {
             <nav className={`${styles.nav} ${isMenuOpen ? styles.active : ""}`}>
               <ul className={styles.navList}>
                 <li>
-                  <a href="#features" className={styles.navLink}>
+                  <Link href="#features" className={styles.navLink}>
                     Features
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#how-it-works" className={styles.navLink}>
+                  <Link href="#how-it-works" className={styles.navLink}>
                     How It Works
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#testimonials" className={styles.navLink}>
+                  <Link href="#testimonials" className={styles.navLink}>
                     Testimonials
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#pricing" className={styles.navLink}>
+                  <Link href="#pricing" className={styles.navLink}>
                     Pricing
-                  </a>
+                  </Link>
                 </li>
               </ul>
               <div className={styles.navButtons}>
@@ -242,9 +243,9 @@ const Home = () => {
               <Link href="/dashboard" className={styles.secondaryBtn}>
                 View Dashboard
               </Link>
-              <a href="#how-it-works" className={styles.secondaryBtn}>
+              <Link href="#how-it-works" className={styles.secondaryBtn}>
                 See How It Works
-              </a>
+              </Link>
             </motion.div>
             <motion.div className={styles.statsRow} variants={itemVariants}>
               <div className={styles.stat}>
@@ -789,7 +790,7 @@ const Home = () => {
               <div className={styles.footerSocial}>
                 <h5>Follow Us</h5>
                 <div className={styles.socialIcons}>
-                  <a
+                  <Link
                     href="https://twitter.com"
                     target="_blank"
                     rel="noopener noreferrer"
@@ -800,8 +801,8 @@ const Home = () => {
                         fill="currentColor"
                       />
                     </svg>
-                  </a>
-                  <a
+                  </Link>
+                  <Link
                     href="https://linkedin.com"
                     target="_blank"
                     rel="noopener noreferrer"
@@ -812,7 +813,7 @@ const Home = () => {
                         fill="currentColor"
                       />
                     </svg>
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -823,13 +824,13 @@ const Home = () => {
                 <h5>Product</h5>
                 <ul>
                   <li>
-                    <a href="#features">Features</a>
+                    <Link href="#features">Features</Link>
                   </li>
                   <li>
-                    <a href="#pricing">Pricing</a>
+                    <Link href="#pricing">Pricing</Link>
                   </li>
                   <li>
-                    <a href="#how-it-works">How It Works</a>
+                    <Link href="#how-it-works">How It Works</Link>
                   </li>
                 </ul>
               </div>
@@ -837,13 +838,13 @@ const Home = () => {
                 <h5>Company</h5>
                 <ul>
                   <li>
-                    <a href="/about">About</a>
+                    <Link href="/about">About</Link>
                   </li>
                   <li>
-                    <a href="/blog">Blog</a>
+                    <Link href="/blog">Blog</Link>
                   </li>
                   <li>
-                    <a href="/contact">Contact</a>
+                    <Link href="/contact">Contact</Link>
                   </li>
                 </ul>
               </div>
@@ -851,10 +852,10 @@ const Home = () => {
                 <h5>Legal</h5>
                 <ul>
                   <li>
-                    <a href="/privacy">Privacy</a>
+                    <Link href="/privacy">Privacy</Link>
                   </li>
                   <li>
-                    <a href="/terms">Terms</a>
+                    <Link href="/terms">Terms</Link>
                   </li>
                 </ul>
               </div>

@@ -4,6 +4,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useLogin } from "@/adapter/utils/index";
 import styles from "./login.module.scss";
+import Link from "next/link";
 
 const LoginPage = () => {
   const [credentials, setCredentials] = useState({
@@ -159,7 +160,7 @@ const LoginPage = () => {
                 </svg>
               </div>
               <div className={styles.forgotPassword}>
-                <a href="#">Forgot password?</a>
+                <Link href="#">Forgot password?</Link>
               </div>
             </motion.div>
 
@@ -249,7 +250,7 @@ const LoginPage = () => {
             </motion.div>
 
             <motion.p className={styles.signupPrompt} variants={itemVariants}>
-              Don't have an account? <a href="/signup">Sign up</a>
+              {"Don't"} have an account? <Link href="/signup">Sign up</Link>
             </motion.p>
           </motion.form>
         </motion.div>
