@@ -237,8 +237,9 @@ const Home = () => {
             </motion.p>
             <motion.div className={styles.heroButtons} variants={itemVariants}>
               <Link href="/signup" className={styles.primaryBtn}>
-                Get Started — It's Free
+                {"Get Started — It's Free"}
               </Link>
+
               <Link href="/dashboard" className={styles.secondaryBtn}>
                 View Dashboard
               </Link>
