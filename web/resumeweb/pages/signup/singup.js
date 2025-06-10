@@ -2,17 +2,20 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useLogin } from "@/adapter/utils/index";
-import styles from "./login.module.scss";
+import styles from "@/pages/signup/singup.module.scss";
+import { useSignup } from "@/adapter/utils/index";
 
-const LoginPage = () => {
+const SignupPage = () => {
   const [credentials, setCredentials] = useState({
+    username: "",
     email: "",
     password: "",
+    confirmPassword: "",
   });
+  const { mutate: signup, isLoading } = useSignup();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const { mutate: login, isLoading } = useLogin();
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -26,18 +29,38 @@ const LoginPage = () => {
     e.preventDefault();
     setLoading(true);
 
+    // Frontend validation for confirmPassword
+    if (credentials.password !== credentials.confirmPassword) {
+      toast.error("Passwords do not match.");
+      setLoading(false);
+      return;
+    }
+
+    // Prepare data for backend, excluding confirmPassword
+    const { username, email, password } = credentials;
+
     try {
-      await login(credentials, {
-        onSuccess: () => {
-          setLoading(false);
-        },
-        onError: (error) => {
-          toast.error(error?.message || "Login failed. Please try again.");
-          setLoading(false);
-        },
-      });
+      await signup(
+        { username, email, password },
+        {
+          onSuccess: () => {
+            toast.success("User registered successfully");
+            setCredentials({
+              username: "",
+              email: "",
+              password: "",
+              confirmPassword: "",
+            });
+            setLoading(false);
+          },
+          onError: (error) => {
+            toast.error(error?.message || "Signup failed. Please try again.");
+            setLoading(false);
+          },
+        }
+      );
     } catch (error) {
-      toast.error(error?.message || "Login failed. Please try again.");
+      toast.error(error?.message || "Signup failed. Please try again.");
       setLoading(false);
     }
   };
@@ -63,10 +86,10 @@ const LoginPage = () => {
   };
 
   return (
-    <div className={styles.loginContainer}>
+    <div className={styles.signupContainer}>
       <ToastContainer position="top-right" autoClose={3000} />
 
-      <div className={styles.loginContent}>
+      <div className={styles.signupContent}>
         <motion.div
           className={styles.formContainer}
           initial="hidden"
@@ -88,14 +111,42 @@ const LoginPage = () => {
                 />
               </svg>
             </div>
-            <h1>Welcome back</h1>
+            <h1>Create Account</h1>
           </motion.div>
 
           <motion.p className={styles.subtitle} variants={itemVariants}>
-            Enter your credentials to access your account
+            Fill in your details to get started
           </motion.p>
 
           <motion.form onSubmit={handleSubmit} variants={containerVariants}>
+            <motion.div className={styles.inputGroup} variants={itemVariants}>
+              <label htmlFor="username">Username</label>
+              <div className={styles.inputWrapper}>
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  value={credentials.username}
+                  onChange={handleChange}
+                  placeholder="johndoe"
+                  required
+                />
+                <svg
+                  className={styles.inputIcon}
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M10 10C12.7614 10 15 7.76142 15 5C15 2.23858 12.7614 0 10 0C7.23858 0 5 2.23858 5 5C5 7.76142 7.23858 10 10 10ZM10 12.5C6.41667 12.5 0 14.2917 0 17.5V20H20V17.5C20 14.2917 13.5833 12.5 10 12.5Z"
+                    fill="#6E7191"
+                  />
+                </svg>
+              </div>
+            </motion.div>
+
             <motion.div className={styles.inputGroup} variants={itemVariants}>
               <label htmlFor="email">Email Address</label>
               <div className={styles.inputWrapper}>
@@ -158,22 +209,47 @@ const LoginPage = () => {
                   )}
                 </svg>
               </div>
-              <div className={styles.forgotPassword}>
-                <a href="#">Forgot password?</a>
-              </div>
             </motion.div>
 
-            <motion.div className={styles.rememberMe} variants={itemVariants}>
-              <label className={styles.checkbox}>
-                <input type="checkbox" />
-                <span className={styles.checkmark}></span>
-                Remember me
-              </label>
+            <motion.div className={styles.inputGroup} variants={itemVariants}>
+              <label htmlFor="confirmPassword">Confirm Password</label>
+              <div className={styles.inputWrapper}>
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  value={credentials.confirmPassword}
+                  onChange={handleChange}
+                  placeholder="••••••••"
+                  required
+                />
+                <svg
+                  className={styles.inputIcon}
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  {showConfirmPassword ? (
+                    <path
+                      d="M10 4.16675C5.83334 4.16675 2.27501 6.75008 0.833344 10.4167C2.27501 14.0834 5.83334 16.6667 10 16.6667C14.1667 16.6667 17.725 14.0834 19.1667 10.4167C17.725 6.75008 14.1667 4.16675 10 4.16675ZM10 14.1667C7.70001 14.1667 5.83334 12.3001 5.83334 10.0001C5.83334 7.70008 7.70001 5.83341 10 5.83341C12.3 5.83341 14.1667 7.70008 14.1667 10.0001C14.1667 12.3001 12.3 14.1667 10 14.1667ZM10 7.50008C8.61667 7.50008 7.50001 8.61675 7.50001 10.0001C7.50001 11.3834 8.61667 12.5001 10 12.5001C11.3833 12.5001 12.5 11.3834 12.5 10.0001C12.5 8.61675 11.3833 7.50008 10 7.50008Z"
+                      fill="#6E7191"
+                    />
+                  ) : (
+                    <path
+                      d="M10 4.16675C5.83334 4.16675 2.27501 6.75008 0.833344 10.4167C2.27501 14.0834 5.83334 16.6667 10 16.6667C14.1667 16.6667 17.725 14.0834 19.1667 10.4167C17.725 6.75008 14.1667 4.16675 10 4.16675ZM10 14.1667C7.70001 14.1667 5.83334 12.3001 5.83334 10.0001C5.83334 7.70008 7.70001 5.83341 10 5.83341C12.3 5.83341 14.1667 7.70008 14.1667 10.0001C14.1667 12.3001 12.3 14.1667 10 14.1667ZM10 7.50008C8.61667 7.50008 7.50001 8.61675 7.50001 10.0001C7.50001 11.3834 8.61667 12.5001 10 12.5001C11.3833 12.5001 12.5 11.3834 12.5 10.0001C12.5 8.61675 11.3833 7.50008 10 7.50008Z"
+                      fill="#6E7191"
+                    />
+                  )}
+                </svg>
+              </div>
             </motion.div>
 
             <motion.button
               type="submit"
-              className={`${styles.loginButton} ${
+              className={`${styles.signupButton} ${
                 loading || isLoading ? styles.loading : ""
               }`}
               disabled={loading || isLoading}
@@ -183,7 +259,7 @@ const LoginPage = () => {
               {loading || isLoading ? (
                 <div className={styles.spinner}></div>
               ) : (
-                "Sign In"
+                "Sign Up"
               )}
             </motion.button>
 
@@ -248,8 +324,8 @@ const LoginPage = () => {
               </button>
             </motion.div>
 
-            <motion.p className={styles.signupPrompt} variants={itemVariants}>
-              Don't have an account? <a href="/signup">Sign up</a>
+            <motion.p className={styles.loginPrompt} variants={itemVariants}>
+              Already have an account? <a href="/login">Sign in</a>
             </motion.p>
           </motion.form>
         </motion.div>
@@ -315,4 +391,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default SignupPage;
