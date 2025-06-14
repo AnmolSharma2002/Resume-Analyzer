@@ -12,17 +12,29 @@ const handleError = (error) => {
   toast.error(error?.message || "An unexpected error occurred");
 };
 
-//Login
+//Login - Fixed to not interfere with mutation callbacks
 export const useLogin = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (data) => loginUser(data),
     onSuccess: (res) => {
-      toast.success("Login Successful");
+      // Invalidate profile query to refresh user data
       queryClient.invalidateQueries({ queryKey: ["profile"] });
+      // Don't return anything here - let the component handle the response
     },
     onError: handleError,
+  });
+};
+
+// Alternative approach - remove onSuccess from hook entirely
+export const useLoginAlt = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data) => loginUser(data),
+    onError: handleError,
+    // Handle success in component only
   });
 };
 
