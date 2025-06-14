@@ -2,18 +2,20 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useLogin } from "@/adapter/utils/index";
+import { useLogin } from "@/adapter/utils/auth";
+import { useRouter } from "next/navigation";
 import styles from "./login.module.scss";
 import Link from "next/link";
+import { Routes } from "@/routes/routes";
 
 const LoginPage = () => {
   const [credentials, setCredentials] = useState({
     email: "",
     password: "",
   });
-  const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const { mutate: login, isLoading } = useLogin();
+  const router = useRouter();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -25,21 +27,27 @@ const LoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+
+    if (!credentials.email || !credentials.password) {
+      toast.error("Please fill in all fields");
+      return;
+    }
 
     try {
-      await login(credentials, {
-        onSuccess: () => {
-          setLoading(false);
-        },
-        onError: (error) => {
-          toast.error(error?.message || "Login failed. Please try again.");
-          setLoading(false);
-        },
-      });
+      // Use mutateAsync to handle the promise directly
+      // The auth hook will handle storing token and user data
+      const userData = await login(credentials);
+
+      // If we get here, login was successful
+      console.log("Login successful, user data:", userData);
+      toast.success("Login successful!");
+
+      const redirectUrl = `${Routes.HOME}?authenticated=true`;
+      console.log("Redirecting to:", redirectUrl);
+      router.push(redirectUrl);
     } catch (error) {
-      toast.error(error?.message || "Login failed. Please try again.");
-      setLoading(false);
+      console.error("Login failed:", error);
+      // Error toast is already handled by the auth hook's onError callback
     }
   };
 
@@ -108,6 +116,7 @@ const LoginPage = () => {
                   onChange={handleChange}
                   placeholder="your@email.com"
                   required
+                  disabled={isLoading}
                 />
                 <svg
                   className={styles.inputIcon}
@@ -136,6 +145,7 @@ const LoginPage = () => {
                   onChange={handleChange}
                   placeholder="••••••••"
                   required
+                  disabled={isLoading}
                 />
                 <svg
                   className={styles.inputIcon}
@@ -145,6 +155,7 @@ const LoginPage = () => {
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
                   onClick={() => setShowPassword(!showPassword)}
+                  style={{ cursor: isLoading ? "not-allowed" : "pointer" }}
                 >
                   {showPassword ? (
                     <path
@@ -153,20 +164,20 @@ const LoginPage = () => {
                     />
                   ) : (
                     <path
-                      d="M10 4.16675C5.83334 4.16675 2.27501 6.75008 0.833344 10.4167C2.27501 14.0834 5.83334 16.6667 10 16.6667C14.1667 16.6667 17.725 14.0834 19.1667 10.4167C17.725 6.75008 14.1667 4.16675 10 4.16675ZM10 14.1667C7.70001 14.1667 5.83334 12.3001 5.83334 10.0001C5.83334 7.70008 7.70001 5.83341 10 5.83341C12.3 5.83341 14.1667 7.70008 14.1667 10.0001C14.1667 12.3001 12.3 14.1667 10 14.1667ZM10 7.50008C8.61667 7.50008 7.50001 8.61675 7.50001 10.0001C7.50001 11.3834 8.61667 12.5001 10 12.5001C11.3833 12.5001 12.5 11.3834 12.5 10.0001C12.5 8.61675 11.3833 7.50008 10 7.50008Z"
+                      d="M10 4.16675C5.83334 4.16675 2.27501 6.75008 0.833344 10.4167C2.27501 14.0834 5.83334 16.6667 10 16.6667C14.1667 16.6667 17.725 14.0834 19.1667 10.4167C17.725 6.75008 14.1667 4.16675 10 4.16675ZM10 14.1667C7.70001 14.1667 5.83334 12.3001 5.83334 10.0001C5.33334 7.70008 7.70001 5.83341 10 5.83341C12.3 5.83341 14.1667 7.70008 14.1667 10.0001C14.1667 12.3001 12.3 14.1667 10 14.1667ZM10 7.50008C8.61667 7.50008 7.50001 8.61675 7.50001 10.0001C7.50001 11.3834 8.61667 12.5001 10 12.5001C11.3833 12.5001 12.5 11.3834 12.5 10.0001C12.5 8.61675 11.3833 7.50008 10 7.50008Z"
                       fill="#6E7191"
                     />
                   )}
                 </svg>
               </div>
               <div className={styles.forgotPassword}>
-                <Link href="#">Forgot password?</Link>
+                <Link href="/forgot-password">Forgot password?</Link>
               </div>
             </motion.div>
 
             <motion.div className={styles.rememberMe} variants={itemVariants}>
               <label className={styles.checkbox}>
-                <input type="checkbox" />
+                <input type="checkbox" disabled={isLoading} />
                 <span className={styles.checkmark}></span>
                 Remember me
               </label>
@@ -175,17 +186,13 @@ const LoginPage = () => {
             <motion.button
               type="submit"
               className={`${styles.loginButton} ${
-                loading || isLoading ? styles.loading : ""
+                isLoading ? styles.loading : ""
               }`}
-              disabled={loading || isLoading}
+              disabled={isLoading}
               variants={itemVariants}
               whileTap={{ scale: 0.98 }}
             >
-              {loading || isLoading ? (
-                <div className={styles.spinner}></div>
-              ) : (
-                "Sign In"
-              )}
+              {isLoading ? <div className={styles.spinner}></div> : "Sign In"}
             </motion.button>
 
             <motion.div className={styles.divider} variants={itemVariants}>
@@ -193,7 +200,12 @@ const LoginPage = () => {
             </motion.div>
 
             <motion.div className={styles.socialLogins} variants={itemVariants}>
-              <button type="button" className={styles.socialButton}>
+              <button
+                type="button"
+                className={styles.socialButton}
+                disabled={isLoading}
+                onClick={() => toast.info("Google login coming soon!")}
+              >
                 <svg
                   width="24"
                   height="24"
@@ -219,7 +231,12 @@ const LoginPage = () => {
                   />
                 </svg>
               </button>
-              <button type="button" className={styles.socialButton}>
+              <button
+                type="button"
+                className={styles.socialButton}
+                disabled={isLoading}
+                onClick={() => toast.info("Facebook login coming soon!")}
+              >
                 <svg
                   width="24"
                   height="24"
@@ -228,12 +245,17 @@ const LoginPage = () => {
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   <path
-                    d="M22 12C22 6.48 17.52 2 12 2C6.48 2 2 6.48 2 12C2 16.84 5.44 20.87 10 21.8V15H8V12H10V9.5C10 7.57 11.57 6 13.5 6H16V9H14C13.45 9 13 9.45 13 10V12H16V15H13V21.95C18.05 21.45 22 17.19 22 12Z"
+                    d="M22 12C22 6.48 17.52 2 12 2C6.48 2 2 12C2 16.84 5.44 20.87 10 21.8V15H8V12H10V9.5C10 7.57 11.57 6 13.5 6H16V9H14C13.45 9 13 9.45 13 10V12H16V15H13V21.95C18.05 21.45 22 17.19 22 12Z"
                     fill="#1877F2"
                   />
                 </svg>
               </button>
-              <button type="button" className={styles.socialButton}>
+              <button
+                type="button"
+                className={styles.socialButton}
+                disabled={isLoading}
+                onClick={() => toast.info("Twitter login coming soon!")}
+              >
                 <svg
                   width="24"
                   height="24"
@@ -273,7 +295,7 @@ const LoginPage = () => {
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path
-                  d="M16 2.66675C8.64002 2.66675 2.66669 8.64008 2.66669 16.0001C2.66669 23.3601 8.64002 29.3334 16 29.3334C23.36 29.3334 29.3334 23.3601 29.3334 23.3601C29.3334 8.64008 23.36 2.66675 16 2.66675ZM13.3334 22.0001L7.33335 16.0001L9.33335 14.0001L13.3334 18.0001L22.6667 8.66675L24.6667 10.6667L13.3334 22.0001Z"
+                  d="M16 2.66675C8.64002 2.66675 2.66669 8.64008 2.66669 16.0001C2.66669 23.3601 8.64002 29.3334 16 29.3334C23.36 29.3334 29.3334 23.3601 29.3334 16.0001C29.3334 8.64008 23.36 2.66675 16 2.66675ZM13.3334 22.0001L7.33335 16.0001L9.33335 14.0001L13.3334 18.0001L22.6667 8.66675L24.6667 10.6667L13.3334 22.0001Z"
                   fill="#4CAF50"
                 />
               </svg>

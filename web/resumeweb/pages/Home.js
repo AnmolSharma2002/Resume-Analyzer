@@ -1,13 +1,25 @@
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { motion } from "framer-motion";
 import styles from "./Home.module.scss";
+import { Routes } from "@/routes/routes";
+import { useAuth, useLogout } from "@/adapter/utils/auth";
 
 const Home = () => {
+  const { isAuthenticated, user } = useAuth();
+  const { mutate: logout } = useLogout();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const router = useRouter();
+  const { authenticated } = router.query;
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+  };
+
+  const handleLogout = () => {
+    logout();
+    setIsMenuOpen(false);
   };
 
   const containerVariants = {
@@ -15,18 +27,18 @@ const Home = () => {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.3,
+        staggerChildren: 0.15,
+        delayChildren: 0.4,
       },
     },
   };
 
   const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
+    hidden: { y: 30, opacity: 0 },
     visible: {
       y: 0,
       opacity: 1,
-      transition: { type: "spring", stiffness: 100 },
+      transition: { type: "spring", stiffness: 120, damping: 20 },
     },
   };
 
@@ -35,8 +47,8 @@ const Home = () => {
       icon: (
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
+          width="28"
+          height="28"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -59,8 +71,8 @@ const Home = () => {
       icon: (
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
+          width="28"
+          height="28"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -81,8 +93,8 @@ const Home = () => {
       icon: (
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
+          width="28"
+          height="28"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -103,19 +115,19 @@ const Home = () => {
   const testimonials = [
     {
       quote:
-        "This ATS checker helped me understand why I wasn't getting callbacks. After implementing the suggestions, I got 3 interviews in one week!",
+        "This ATS checker transformed my job search. I landed 3 interviews in just one week!",
       author: "Michael Chen",
       position: "Software Engineer",
     },
     {
       quote:
-        "The keyword analysis feature is incredible. It helped me tailor my resume perfectly for each job application.",
+        "The keyword analysis is a game-changer. My resume now perfectly matches job postings!",
       author: "Sarah Johnson",
       position: "Marketing Specialist",
     },
     {
       quote:
-        "As a hiring manager, I recommend this tool to all candidates. It truly helps create resumes that get through our ATS systems.",
+        "As an HR manager, I recommend this tool to all candidates. It ensures ATS compatibility.",
       author: "Robert Garcia",
       position: "HR Director",
     },
@@ -129,8 +141,8 @@ const Home = () => {
           <div className={styles.navbar}>
             <div className={styles.logo}>
               <svg
-                width="40"
-                height="40"
+                width="36"
+                height="36"
                 viewBox="0 0 40 40"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
@@ -167,12 +179,25 @@ const Home = () => {
                 </li>
               </ul>
               <div className={styles.navButtons}>
-                <Link href="/login" className={styles.loginBtn}>
-                  Log In
-                </Link>
-                <Link href="/signup" className={styles.signupBtn}>
-                  Sign Up
-                </Link>
+                {isAuthenticated || authenticated === "true" ? (
+                  <>
+                    <Link href={Routes.DASHBOARD} className={styles.profileBtn}>
+                      {user?.name || "Profile"}
+                    </Link>
+                    <button onClick={handleLogout} className={styles.logoutBtn}>
+                      Log Out
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link href={Routes.LOGIN} className={styles.loginBtn}>
+                      Log In
+                    </Link>
+                    <Link href={Routes.SIGNUP} className={styles.signupBtn}>
+                      Sign Up
+                    </Link>
+                  </>
+                )}
               </div>
             </nav>
 
@@ -228,30 +253,48 @@ const Home = () => {
             variants={containerVariants}
           >
             <motion.h1 variants={itemVariants}>
-              Get Your Resume <span>Past The Bots</span>
+              {(isAuthenticated || authenticated === "true") && user?.name ? (
+                <>
+                  Welcome back, <span>{user.name}</span>! Ready to Land Your
+                  Dream Job?
+                </>
+              ) : (
+                <>
+                  Get Your Resume <span>Past The Bots</span>
+                </>
+              )}
             </motion.h1>
             <motion.p variants={itemVariants}>
-              Optimize your resume for Applicant Tracking Systems with our
-              AI-powered tool. Increase your chances of landing interviews by up
-              to 70%.
+              {(isAuthenticated || authenticated === "true") && user?.name
+                ? "Optimize your resume further to shine in your next career move!"
+                : "Our AI-powered tool boosts your resume’s ATS compatibility, increasing interview chances by 70%."}
             </motion.p>
             <motion.div className={styles.heroButtons} variants={itemVariants}>
-              <Link href="/signup" className={styles.primaryBtn}>
-                {"Get Started — It's Free"}
-              </Link>
-
-              <Link href="/dashboard" className={styles.secondaryBtn}>
-                View Dashboard
-              </Link>
-              <Link href="#how-it-works" className={styles.secondaryBtn}>
-                See How It Works
-              </Link>
+              {isAuthenticated || authenticated === "true" ? (
+                <>
+                  <Link href={Routes.DASHBOARD} className={styles.primaryBtn}>
+                    Check Your ATS Score
+                  </Link>
+                  <Link href="#how-it-works" className={styles.secondaryBtn}>
+                    See How It Works
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link href={Routes.SIGNUP} className={styles.primaryBtn}>
+                    Get Started
+                  </Link>
+                  <Link href="#how-it-works" className={styles.secondaryBtn}>
+                    See How It Works
+                  </Link>
+                </>
+              )}
             </motion.div>
             <motion.div className={styles.statsRow} variants={itemVariants}>
               <div className={styles.stat}>
                 <span className={styles.statNumber}>75%</span>
                 <span className={styles.statLabel}>
-                  of resumes are rejected by ATS before a human sees them
+                  of resumes are rejected by ATS
                 </span>
               </div>
               <div className={styles.stat}>
@@ -271,10 +314,10 @@ const Home = () => {
       <section id="features" className={styles.features}>
         <div className={styles.container}>
           <div className={styles.sectionHeader}>
-            <h2>Features to Make Your Resume Stand Out</h2>
+            <h2>Features to Elevate Your Resume</h2>
             <p>
-              Our AI-powered tools analyze your resume against job descriptions
-              to increase your interview chances
+              AI-powered tools to optimize your resume and boost interview
+              chances
             </p>
           </div>
 
@@ -283,9 +326,13 @@ const Home = () => {
               <motion.div
                 key={index}
                 className={styles.featureCard}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
+                transition={{
+                  delay: index * 0.2,
+                  type: "spring",
+                  stiffness: 100,
+                }}
                 viewport={{ once: true }}
               >
                 <div className={styles.featureIcon}>{feature.icon}</div>
@@ -302,7 +349,7 @@ const Home = () => {
         <div className={styles.container}>
           <div className={styles.sectionHeader}>
             <h2>How It Works</h2>
-            <p>Get your resume optimized in three simple steps</p>
+            <p>Optimize your resume in three easy steps</p>
           </div>
 
           <div className={styles.stepsContainer}>
@@ -310,18 +357,15 @@ const Home = () => {
 
             <motion.div
               className={styles.step}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
+              initial={{ opacity: 0, x: -50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3, type: "spring" }}
               viewport={{ once: true }}
             >
               <div className={styles.stepNumber}>1</div>
               <div className={styles.stepContent}>
                 <h3>Upload Your Resume</h3>
-                <p>
-                  Upload your resume in any common format (PDF, DOCX, TXT) to
-                  our secure platform.
-                </p>
+                <p>Securely upload your resume in PDF, DOCX, or TXT format.</p>
               </div>
               <div className={styles.stepImage}>
                 <img src="/api/placeholder/300/200" alt="Upload Resume" />
@@ -330,17 +374,16 @@ const Home = () => {
 
             <motion.div
               className={styles.step}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
+              initial={{ opacity: 0, x: 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.4, type: "spring" }}
               viewport={{ once: true }}
             >
               <div className={styles.stepNumber}>2</div>
               <div className={styles.stepContent}>
                 <h3>Add Job Description</h3>
                 <p>
-                  Paste the job description to analyze keyword compatibility and
-                  formatting requirements.
+                  Paste the job description to analyze keywords and formatting.
                 </p>
               </div>
               <div className={styles.stepImage}>
@@ -350,18 +393,15 @@ const Home = () => {
 
             <motion.div
               className={styles.step}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              transition={{ delay: 0.6 }}
+              initial={{ opacity: 0, x: -50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.5, type: "spring" }}
               viewport={{ once: true }}
             >
               <div className={styles.stepNumber}>3</div>
               <div className={styles.stepContent}>
                 <h3>Get Detailed Analysis</h3>
-                <p>
-                  Receive your ATS score, keyword analysis, and actionable
-                  recommendations to improve.
-                </p>
+                <p>Receive your ATS score and actionable recommendations.</p>
               </div>
               <div className={styles.stepImage}>
                 <img src="/api/placeholder/300/200" alt="Get Analysis" />
@@ -377,8 +417,8 @@ const Home = () => {
           <div className={styles.sectionHeader}>
             <h2>What Our Users Say</h2>
             <p>
-              Thousands of job seekers have improved their interview chances
-              with our ATS optimization
+              Join thousands who’ve boosted their interview chances with
+              ResumeATS
             </p>
           </div>
 
@@ -387,15 +427,15 @@ const Home = () => {
               <motion.div
                 key={index}
                 className={styles.testimonialCard}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
+                transition={{ delay: index * 0.2, type: "spring" }}
                 viewport={{ once: true }}
               >
                 <div className={styles.quoteIcon}>
                   <svg
-                    width="32"
-                    height="32"
+                    width="36"
+                    height="36"
                     viewBox="0 0 32 32"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
@@ -411,8 +451,7 @@ const Home = () => {
                       fillOpacity="0.2"
                     />
                     <path
-                      d="M10.6667 18.6667V22.6667C10.6667 23.2855 10.9124  
-                      23.879 11.3499 24.3166C11.7875 24.7542 12.3812 25 13 25H14.3333"
+                      d="M10.6667 18.6667V22.6667C10.6667 23.2855 10.9124 23.879 11.3499 24.3166C11.7875 24.7542 12.3812 25 13 25H14.3333"
                       stroke="#3366FF"
                       strokeWidth="2"
                       strokeLinecap="round"
@@ -464,14 +503,15 @@ const Home = () => {
         <div className={styles.container}>
           <div className={styles.sectionHeader}>
             <h2>Simple, Transparent Pricing</h2>
-            <p>Choose the plan that fits your needs</p>
+            <p>Choose the plan that fits your career goals</p>
           </div>
 
           <div className={styles.pricingGrid}>
             <motion.div
               className={`${styles.pricingCard} ${styles.freePlan}`}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, type: "spring" }}
               viewport={{ once: true }}
             >
               <div className={styles.planHeader}>
@@ -532,16 +572,22 @@ const Home = () => {
                   <span>Keyword Identification</span>
                 </li>
               </ul>
-              <Link href="/signup" className={styles.planButton}>
-                Get Started
-              </Link>
+              {isAuthenticated || authenticated === "true" ? (
+                <Link href={Routes.DASHBOARD} className={styles.planButton}>
+                  Check Your ATS Score
+                </Link>
+              ) : (
+                <Link href={Routes.SIGNUP} className={styles.planButton}>
+                  Get Started
+                </Link>
+              )}
             </motion.div>
 
             <motion.div
               className={`${styles.pricingCard} ${styles.proPlan}`}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
+              transition={{ delay: 0.3, type: "spring" }}
               viewport={{ once: true }}
             >
               <div className={styles.popularBadge}>Most Popular</div>
@@ -635,16 +681,22 @@ const Home = () => {
                   <span>Resume Templates</span>
                 </li>
               </ul>
-              <Link href="/signup" className={styles.planButton}>
-                Get Started
-              </Link>
+              {isAuthenticated || authenticated === "true" ? (
+                <Link href={Routes.DASHBOARD} className={styles.planButton}>
+                  Check Your ATS Score
+                </Link>
+              ) : (
+                <Link href={Routes.SIGNUP} className={styles.planButton}>
+                  Get Started
+                </Link>
+              )}
             </motion.div>
 
             <motion.div
               className={`${styles.pricingCard} ${styles.enterprisePlan}`}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
+              transition={{ delay: 0.4, type: "spring" }}
               viewport={{ once: true }}
             >
               <div className={styles.planHeader}>
@@ -709,7 +761,7 @@ const Home = () => {
                     xmlns="http://www.w3.org/2000/svg"
                     width="20"
                     height="20"
-                    viewBox="0 0 24 24"
+                    viewBox="0 0 24 Protein 24"
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="2"
@@ -737,9 +789,15 @@ const Home = () => {
                   <span>Priority Support</span>
                 </li>
               </ul>
-              <Link href="/signup" className={styles.planButton}>
-                Get Started
-              </Link>
+              {isAuthenticated || authenticated === "true" ? (
+                <Link href={Routes.DASHBOARD} className={styles.planButton}>
+                  Check Your ATS Score
+                </Link>
+              ) : (
+                <Link href={Routes.SIGNUP} className={styles.planButton}>
+                  Get Started
+                </Link>
+              )}
             </motion.div>
           </div>
         </div>
@@ -750,22 +808,36 @@ const Home = () => {
         <div className={styles.container}>
           <motion.div
             className={styles.ctaContent}
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
+            transition={{ type: "spring", stiffness: 100 }}
             viewport={{ once: true }}
           >
-            <h2>Ready to Optimize Your Resume?</h2>
+            <h2>
+              {(isAuthenticated || authenticated === "true") && user?.name
+                ? `Elevate Your Career, ${user.name}!`
+                : "Ready to Optimize Your Resume?"}
+            </h2>
             <p>
-              Join thousands of job seekers who have improved their interview
-              chances with our ATS optimization tool.
+              {(isAuthenticated || authenticated === "true") && user?.name
+                ? "Craft a resume that opens doors to your dream opportunities."
+                : "Join thousands who’ve boosted their interview chances with our ATS tool."}
             </p>
             <div className={styles.ctaButtons}>
-              <Link href="/signup" className={styles.primaryBtn}>
-                Get Started For Free
-              </Link>
-              <Link href="/contact" className={styles.outlineBtn}>
-                Contact Sales
-              </Link>
+              {isAuthenticated || authenticated === "true" ? (
+                <Link href={Routes.DASHBOARD} className={styles.primaryBtn}>
+                  Check Your ATS Score
+                </Link>
+              ) : (
+                <>
+                  <Link href={Routes.SIGNUP} className={styles.primaryBtn}>
+                    Get Started
+                  </Link>
+                  <Link href="/contact" className={styles.outlineBtn}>
+                    Contact Sales
+                  </Link>
+                </>
+              )}
             </div>
           </motion.div>
         </div>
@@ -775,10 +847,9 @@ const Home = () => {
       <footer className={styles.footer}>
         <div className={styles.container}>
           <div className={styles.footerGrid}>
-            {/* Company Info */}
             <div className={styles.footerBrand}>
               <div className={styles.footerLogo}>
-                <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                <svg width="36" height="36" viewBox="0 0 40 40" fill="none">
                   <path
                     d="M20 0C8.954 0 0 8.954 0 20C0 31.046 8.954 40 20 40C31.046 40 40 31.046 40 20C40 8.954 31.046 0 20 0ZM20 30C14.477 30 10 25.523 10 20C10 14.477 14.477 10 20 10C25.523 10 30 14.477 30 20C30 25.523 25.523 30 20 30Z"
                     fill="#3366FF"
@@ -818,7 +889,6 @@ const Home = () => {
               </div>
             </div>
 
-            {/* Quick Links */}
             <div className={styles.footerLinks}>
               <div className={styles.linkGroup}>
                 <h5>Product</h5>
@@ -862,7 +932,6 @@ const Home = () => {
             </div>
           </div>
 
-          {/* Copyright */}
           <div className={styles.footerBottom}>
             <p>© {new Date().getFullYear()} ResumeATS. All rights reserved.</p>
           </div>
